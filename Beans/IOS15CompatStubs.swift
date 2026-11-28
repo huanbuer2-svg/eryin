@@ -10,6 +10,9 @@
 
 import SwiftUI
 
+/// 标记：iOS 15 兼容构建（Folia 播放页等 iOS 16+ 功能在此构建中不可用）
+let BeansIOS15Build = true
+
 // MARK: - iOS 15 兼容修饰器
 
 extension View {
