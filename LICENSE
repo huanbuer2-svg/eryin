@@ -1,0 +1,8 @@
+GNU General Public License, version 3.0 only (GPL-3.0-only)
+
+The combined Beans Music distribution includes the GPL-3.0-only CiliCili
+source and is distributed under the GNU General Public License, version 3.
+The complete, unmodified license text is retained in
+`Modules/CiliCili/LICENSE` and is included in the corresponding source
+archive. Original MIT notices for Beans and other third-party components
+remain in `THIRD_PARTY_NOTICES.md` and their respective source files.
