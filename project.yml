@@ -49,6 +49,7 @@ targets:
         CODE_SIGN_ENTITLEMENTS: Beans/Beans.entitlements
     dependencies:
       - target: CiliCiliKit
+        embed: false
     info:
       path: Beans/Info.plist
       properties:
