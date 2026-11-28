@@ -28,21 +28,26 @@ struct WebDAVView: View {
     @State private var editingConnection = false
 
     var body: some View {
-        NavigationStack {
+        BeansNavigationStack {
             List {
                 if store.connection == nil || editingConnection { connectionForm }
                 else {
                     browserSection
                     backupSection
                     Section("连接") {
-                        LabeledContent("地址", value: store.connection?.address ?? "")
+                        HStack {
+                            Text("地址")
+                            Spacer()
+                            Text(store.connection?.address ?? "")
+                                .foregroundStyle(Color.beansComment)
+                        }
                         Button("编辑连接") { editingConnection = true }
                         Button("清理已缓存音乐") { showClearCache = true }
                         Button("移除此 WebDAV 连接", role: .destructive) { showDisconnect = true }
                     }
                 }
             }
-            .scrollContentBackground(.hidden)
+            .beansScrollContentHidden()
             .background(GlassBackdrop())
             .navigationTitle("WebDAV")
             .navigationBarTitleDisplayMode(.inline)

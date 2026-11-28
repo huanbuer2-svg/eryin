@@ -17,7 +17,14 @@ targets:
     platform: iOS
     deploymentTarget: "15.0"
     sources:
-      - Beans
+      - path: Beans
+        excludes:
+          - "Folia/Views/FoliaStageView.swift"
+          - "Folia/Views/FoliaClassicLayout.swift"
+          - "Folia/Views/FoliaClassicRenderer.swift"
+          - "Folia/Views/FoliaStillRenderer.swift"
+          - "NowPlayingLiveActivity.swift"
+          - "LockScreenArtwork.swift"
     resources:
       - Beans/en.lproj
       - Beans/zh-Hans.lproj

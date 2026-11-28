@@ -4152,7 +4152,7 @@ struct SettingsView: View {
                 Toggle("锁屏沉浸封面", isOn: $lockScreenImmersiveArtworkEnabled)
                     .tint(Color.beansAmber)
                     .accessibilityIdentifier("beans.settings.lock-screen-artwork")
-                    .onChange(of: lockScreenImmersiveArtworkEnabled) { _, _ in player.refreshLockScreenArtwork() }
+                    .onChange(of: lockScreenImmersiveArtworkEnabled) { _ in player.refreshLockScreenArtwork() }
                 Text("支持专辑封面、自定义 GIF 和视频封面。显示效果由系统和辅助功能设置决定。")
                     .font(BeansFont.appFont(11))
                     .foregroundStyle(Color.beansComment)

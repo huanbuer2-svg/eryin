@@ -135,7 +135,7 @@ public struct CiliCiliVideoListenRequest {
     public var duration: TimeInterval
     public var ownerID: Int?
     public var preservesQueueOrder: Bool
-    public var queue: [CiliCiliListenQueueItem]
+    public var queue: [CiliCiliVideoListenRequest]
 
     public init(
         bvid: String = "",
@@ -147,7 +147,7 @@ public struct CiliCiliVideoListenRequest {
         duration: TimeInterval = 0,
         ownerID: Int? = nil,
         preservesQueueOrder: Bool = false,
-        queue: [CiliCiliListenQueueItem] = []
+        queue: [CiliCiliVideoListenRequest] = []
     ) {
         self.bvid = bvid
         self.cid = cid
@@ -186,7 +186,7 @@ public final class CiliCiliRuntime: ObservableObject {
     public var onVideoListenModeChange: ((CiliCiliVideoListenRequest, Bool, TimeInterval, Bool) -> Void)?
     public var onVideoListenPlaybackSnapshot: ((CiliCiliVideoListenRequest) -> CiliCiliListenPlaybackSnapshot?)?
     public var onVideoListenQueueChange: ((CiliCiliVideoListenRequest) -> Void)?
-    public var onSessionChange: ((String, String, String, String?) -> Void)?
+    public var onSessionChange: ((String, String, String, String?) throws -> Void)?
 
     private init() {}
 

@@ -611,9 +611,17 @@ struct BeansNavigationStack<Content: View>: View {
     @ViewBuilder var content: () -> Content
 
     var body: some View {
-        NavigationStack {
-            content()
-                .background(BeansNavigationSurfaceClearer())
+        if #available(iOS 16.0, *) {
+            NavigationStack {
+                content()
+                    .background(BeansNavigationSurfaceClearer())
+            }
+        } else {
+            NavigationView {
+                content()
+                    .background(BeansNavigationSurfaceClearer())
+            }
+            .navigationViewStyle(.stack)
         }
     }
 }
@@ -624,9 +632,18 @@ struct BeansNavigationStackWithPath<Route: Hashable, Content: View>: View {
     @ViewBuilder var content: () -> Content
 
     var body: some View {
-        NavigationStack(path: $path) {
-            content()
-                .background(BeansNavigationSurfaceClearer())
+        if #available(iOS 16.0, *) {
+            NavigationStack(path: $path) {
+                content()
+                    .background(BeansNavigationSurfaceClearer())
+            }
+        } else {
+            // iOS 15 没有类型化路径导航，退化为普通堆栈（详情页仍可通过 NavigationLink 打开）
+            NavigationView {
+                content()
+                    .background(BeansNavigationSurfaceClearer())
+            }
+            .navigationViewStyle(.stack)
         }
     }
 }
@@ -781,11 +798,16 @@ private struct BeansNavigationSurfaceClearer: UIViewControllerRepresentable {
 
 extension View {
     /// 类型化导航目的地。
+    @ViewBuilder
     func beansNavigationDestination<Route: Hashable, Destination: View>(
         for route: Route.Type,
         @ViewBuilder destination: @escaping (Route) -> Destination
     ) -> some View {
-        navigationDestination(for: route, destination: destination)
+        if #available(iOS 16.0, *) {
+            navigationDestination(for: route, destination: destination)
+        } else {
+            self
+        }
     }
 }
 
