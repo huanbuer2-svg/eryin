@@ -68,6 +68,7 @@ struct LibraryView: View {
     @EnvironmentObject private var favorites: FavoritesStore
     @Environment(\.beansUsesSharedRootBackdrop) private var usesSharedRootBackdrop
     @ObservedObject private var qqAuth = QQMusicAuth.shared
+    @ObservedObject private var playlistFavorites = PlaylistFavoriteStore.shared
     @ObservedObject private var kugouAuth = KugouMusicAuth.shared
     @ObservedObject private var bilibiliAuth = BilibiliAuth.shared
     @ObservedObject private var platformPrefs = PlatformPreferenceStore.shared
@@ -561,6 +562,64 @@ struct LibraryView: View {
                 .padding(.vertical, 6)
                 .background {
                                         BeansGlass(shape: RoundedRectangle(cornerRadius: 24, style: .continuous))
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .beansCardShadow(radius: 9, y: 3)
+            }
+            favoritesPlaylistBlock
+        }
+    }
+
+    /// 收藏的歌单（搜索/歌单广场里点星标收藏的）
+    @ViewBuilder
+    private var favoritesPlaylistBlock: some View {
+        let favorites = playlistFavorites.favorites
+        if !favorites.isEmpty {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("收藏的歌单")
+                    .font(BeansFont.appFont(15, .semibold))
+                    .foregroundStyle(Color.beansLabel)
+                VStack(spacing: 0) {
+                    ForEach(favorites) { playlist in
+                        Button {
+                            BeansHaptics.tap()
+                            openRoute(LibraryRoute.playlist(playlist))
+                        } label: {
+                            HStack(spacing: 12) {
+                                CoverImage(url: playlist.coverURL, size: 56, cornerRadius: 12)
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(playlist.name)
+                                        .font(BeansFont.appFont(15, .medium))
+                                        .foregroundStyle(Color.beansLabel)
+                                        .lineLimit(1)
+                                    Text(beansSongCountText(playlist.trackCount))
+                                        .font(BeansFont.appFont(12))
+                                        .foregroundStyle(Color.beansComment)
+                                }
+                                Spacer(minLength: 8)
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundStyle(Color.beansComment.opacity(0.6))
+                            }
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 10)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .contextMenu {
+                            Button(role: .destructive) {
+                                BeansHaptics.tap()
+                                playlistFavorites.remove(playlist)
+                            } label: {
+                                Label("取消收藏", systemImage: "star.slash")
+                            }
+                        }
+                        Divider().overlay(Color.beansComment.opacity(0.12))
+                    }
+                }
+                .padding(.vertical, 6)
+                .background {
+                    BeansGlass(shape: RoundedRectangle(cornerRadius: 24, style: .continuous))
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
                 .beansCardShadow(radius: 9, y: 3)

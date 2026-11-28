@@ -13,6 +13,7 @@ struct PlaylistView: View {
     @EnvironmentObject private var auth: AuthStore
     @EnvironmentObject private var theme: ThemeStore
     @ObservedObject private var favorites = FavoritesStore.shared
+    @ObservedObject private var playlistFavorites = PlaylistFavoriteStore.shared
 
     let playlist: Playlist
     @State private var tracks: [Song] = []
@@ -120,7 +121,20 @@ struct PlaylistView: View {
             }
             .navigationTitle(playlist.name)
             .navigationBarTitleDisplayMode(.inline)
-            .beansDetailProfileToolbar()
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        BeansHaptics.tap()
+                        let added = playlistFavorites.toggle(playlist)
+                        ToastCenter.shared.show(added ? "已收藏歌单" : "已取消收藏")
+                    } label: {
+                        Image(systemName: playlistFavorites.isFavorite(playlist) ? "star.fill" : "star")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(playlistFavorites.isFavorite(playlist) ? Color.beansAmber : Color.beansLabel)
+                    }
+                    .accessibilityLabel(playlistFavorites.isFavorite(playlist) ? "取消收藏" : "收藏歌单")
+                }
+            }
         .task { await load() }
         .sheet(isPresented: $showBatchDownload) {
             BatchDownloadSheet(songs: displayedTracks, title: "下载歌单")

@@ -364,12 +364,10 @@ struct BeansDetailProfileShortcut: View {
 }
 
 extension View {
+    /// ❄️ 贰音：详情页/子页面右上角不再显示「我的」头像入口
+    @ViewBuilder
     func beansDetailProfileToolbar() -> some View {
-        toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                BeansDetailProfileShortcut()
-            }
-        }
+        self
     }
 }
 
