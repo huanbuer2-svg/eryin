@@ -1,16 +1,16 @@
 # Beans Music 🎵
 
-> **贰音定制版（基于 Beans Music 2.0.3 / b2，与上游 2.0.3 功能一致）**
-> 差异只有三处：显示名「贰音」、包名 `com.buer.music`、检查更新指向本仓库 `huanbuer2-svg/eryin`。
-> 构建方式：GitHub Actions 自动打包 `Eryin-unsigned.ipa`（未签名，需自签安装）。
-> 要求 **iOS 26.1+**（2.0.3 起使用 iOS 26 液态玻璃 API，不再支持 iOS 15–18）。
+> **贰音（基于 Beans Music 2.0.3）· 单线构建，要求 iOS 15+**
+> 显示名「贰音」、包名 `com.buer.music`、检查更新指向本仓库 `huanbuer2-svg/eryin`。
+> GitHub Actions 自动打包 `Eryin-unsigned.ipa`（未签名，需自签安装）。
+> **不含哔哩哔哩模块**（该模块依赖 iOS 16/17/26 API）；音乐、歌单同步、主题、播放页功能完整。
 
-> 一款基于 **iOS 26 原生液态玻璃（Liquid Glass）** 的第三方音乐播放器（最低支持 iOS 26.1），聚合网易云音乐、QQ 音乐与 CiliCili 哔哩哔哩界面，纯 SwiftUI 实现。
+> 一款纯 SwiftUI 的第三方音乐播放器，聚合网易云音乐、QQ 音乐、酷狗音乐与汽水音乐，**最低支持 iOS 15**（iOS 26 上自动使用液态玻璃外观）。
 > 本软件完全开源，仅供学习研究使用；组合发行版按 GPL-3.0-only 发布。
 
 [![GitHub Pages 预览](https://img.shields.io/badge/在线预览-GitHub%20Pages-blue)](https://xiaodou0416.github.io/Beans-Music/)
 [![License: GPL-3.0-only](https://img.shields.io/badge/License-GPL--3.0--only-blue.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-iOS%2026.1%2B-orange)]()
+[![Platform](https://img.shields.io/badge/Platform-iOS%2015%2B-orange)]()
 [![Swift](https://img.shields.io/badge/Swift-5-orange)]()
 
 **👀 在线预览（HTML 介绍页）：** https://xiaodou0416.github.io/Beans-Music/

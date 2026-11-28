@@ -1,4 +1,4 @@
-name: Build Unsigned IPA (贰音 · iOS 15–18)
+name: Build Unsigned IPA (贰音)
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ on:
         default: 'true'
         type: boolean
   push:
-    branches: [ios15]
+    branches: [main]
 
 permissions:
   contents: write
@@ -57,7 +57,7 @@ jobs:
           echo "Building with MARKETING_VERSION=$VER CURRENT_PROJECT_VERSION=$BUILD"
           echo "BUILD_NUMBER=$BUILD" >> "$GITHUB_ENV"
           echo "VERSION_LABEL=$VER" >> "$GITHUB_ENV"
-          echo "VERSION_TAG=v$VER-ios15" >> "$GITHUB_ENV"
+          echo "VERSION_TAG=v$VER" >> "$GITHUB_ENV"
           xcodebuild \
             -project Beans.xcodeproj \
             -scheme Beans \
@@ -91,16 +91,16 @@ jobs:
           cp -R build/Build/Products/Release-iphoneos/Beans.app Payload/
           cp Beans/Resources/CiliCili-LICENSE.txt Payload/Beans.app/
           cp Beans/Resources/CiliCili-NOTICE.md Payload/Beans.app/
-          zip -qry Eryin-unsigned-ios15.ipa Payload
-          unzip -t Eryin-unsigned-ios15.ipa
+          zip -qry Eryin-unsigned.ipa Payload
+          unzip -t Eryin-unsigned.ipa
           test -f Payload/Beans.app/Info.plist
           test -x Payload/Beans.app/Beans
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
-          name: Eryin-unsigned-ios15-ipa
-          path: Eryin-unsigned-ios15.ipa
+          name: Eryin-unsigned-ipa
+          path: Eryin-unsigned.ipa
 
       - name: Build release notes from CHANGELOG
         run: |
@@ -123,9 +123,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ env.VERSION_TAG }}
-          name: 贰音 ${{ env.VERSION_LABEL }} · iOS 15–18
+          name: 贰音 ${{ env.VERSION_LABEL }}
           body_path: release_body.md
-          files: Eryin-unsigned-ios15.ipa
+          files: Eryin-unsigned.ipa
           update_release_body: true
           update_release_name: true
           update_release_assets: true

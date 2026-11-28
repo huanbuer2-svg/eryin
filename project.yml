@@ -1,6 +1,6 @@
 name: Beans
 
-# 贰音 · iOS 15–18 兼容线
+# 贰音 · 单线构建（iOS 15+，不含哔哩哔哩模块）
 # 与 Sonicove 1.7.47 同构：2.0.3 功能集，但去掉哔哩哔哩模块（该模块依赖 iOS 16/17/26 API），
 # 用 CiliCiliKit 替身（Modules/CiliCiliKitStub）保证 App 端桥接代码照常编译。
 options:
@@ -41,8 +41,8 @@ targets:
         STRIP_INSTALLED_PRODUCT: YES
         SWIFT_COMPILATION_MODE: wholemodule
         SWIFT_OPTIMIZATION_LEVEL: "-O"
-        MARKETING_VERSION: "2.3.0"
-        CURRENT_PROJECT_VERSION: "100"
+        MARKETING_VERSION: "2.4.0"
+        CURRENT_PROJECT_VERSION: "102"
         TARGETED_DEVICE_FAMILY: "1,2"
         SWIFT_OBJC_BRIDGING_HEADER: Beans/Beans-Bridging-Header.h
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
