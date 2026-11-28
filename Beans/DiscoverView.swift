@@ -408,9 +408,8 @@ struct DiscoverView: View {
     }
 
     private var shouldShowRemoteAnnouncementBanner: Bool {
-        remoteAnnouncementEnabled
-            && (!remoteAnnouncementText.isEmpty || !remoteAnnouncementMediaURL.isEmpty || !remoteAnnouncementImageURL.isEmpty)
-            && remoteAnnouncementBannerDismissedKey != remoteAnnouncementBannerKey
+        // ❄️ 贰音：不再展示远端公告（原作者的公告只剩停更说明，开屏弹它没有意义）
+        false
     }
 
     private var bilibiliHeader: some View {
