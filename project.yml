@@ -33,6 +33,8 @@ targets:
       - Beans/Resources/SimpleIcons-LICENSE.txt
       - Beans/Resources/CeruBilibili-NOTICE.md
       - Beans/Resources/ikun-music-source.js
+      - Beans/Resources/xinghai-music-source.js
+      - Beans/Resources/linlan-music-source.js
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.buer.music
@@ -41,8 +43,8 @@ targets:
         STRIP_INSTALLED_PRODUCT: YES
         SWIFT_COMPILATION_MODE: wholemodule
         SWIFT_OPTIMIZATION_LEVEL: "-O"
-        MARKETING_VERSION: "2.4.2"
-        CURRENT_PROJECT_VERSION: "103"
+        MARKETING_VERSION: "2.4.3"
+        CURRENT_PROJECT_VERSION: "102"
         TARGETED_DEVICE_FAMILY: "1,2"
         SWIFT_OBJC_BRIDGING_HEADER: Beans/Beans-Bridging-Header.h
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
