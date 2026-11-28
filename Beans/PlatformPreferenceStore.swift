@@ -19,12 +19,8 @@ final class PlatformPreferenceStore: ObservableObject {
     private init() {
         let saved = UserDefaults.standard.stringArray(forKey: Self.key) ?? []
         var selected = saved.isEmpty
-            ? Set(SearchProvider.allCases.map(\.rawValue))
+            ? Set(SearchProvider.beansCases.map(\.rawValue))
             : Set(saved.map(Self.migrateRawValue))
-        if !saved.isEmpty, !UserDefaults.standard.bool(forKey: "beans.platforms.migrated.bilibili.v1") {
-            selected.insert(SearchProvider.bilibili.rawValue)
-            UserDefaults.standard.set(true, forKey: "beans.platforms.migrated.bilibili.v1")
-        }
         selectedRaw = selected
         orderedRaw = UserDefaults.standard.stringArray(forKey: Self.orderKey)?
             .map(Self.migrateRawValue) ?? []
@@ -33,7 +29,7 @@ final class PlatformPreferenceStore: ObservableObject {
     }
 
     var enabledSearchProviders: [SearchProvider] {
-        let list = orderedSearchProviders.filter { selectedRaw.contains($0.rawValue) }
+        let list = orderedSearchProviders.filter { selectedRaw.contains($0.rawValue) && $0 != .bilibili }
         return list.isEmpty ? [.netease] : list
     }
 
@@ -75,7 +71,7 @@ final class PlatformPreferenceStore: ObservableObject {
     }
 
     func resetToDefault() {
-        selectedRaw = Set(SearchProvider.allCases.map(\.rawValue))
+        selectedRaw = Set(SearchProvider.beansCases.map(\.rawValue))
         resetOrder()
         save()
     }
@@ -90,7 +86,7 @@ final class PlatformPreferenceStore: ObservableObject {
     }
 
     func resetOrder() {
-        orderedRaw = SearchProvider.allCases.map(\.rawValue)
+        orderedRaw = SearchProvider.beansCases.map(\.rawValue)
         saveOrder()
         objectWillChange.send()
     }
@@ -107,7 +103,7 @@ final class PlatformPreferenceStore: ObservableObject {
     }
 
     private func normalize() {
-        let allowed = Set(SearchProvider.allCases.map(\.rawValue))
+        let allowed = Set(SearchProvider.beansCases.map(\.rawValue))
         selectedRaw = selectedRaw.intersection(allowed)
         if selectedRaw.isEmpty {
             selectedRaw = [SearchProvider.netease.rawValue]
@@ -119,7 +115,7 @@ final class PlatformPreferenceStore: ObservableObject {
     }
 
     private func normalizeOrder() {
-        let defaults = SearchProvider.allCases.map(\.rawValue)
+        let defaults = SearchProvider.beansCases.map(\.rawValue)
         var result = orderedRaw.filter { defaults.contains($0) }
         for raw in defaults where !result.contains(raw) {
             result.append(raw)

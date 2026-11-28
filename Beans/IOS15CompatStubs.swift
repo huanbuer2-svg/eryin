@@ -13,6 +13,15 @@ import SwiftUI
 /// 标记：iOS 15 兼容构建（Folia 播放页等 iOS 16+ 功能在此构建中不可用）
 let BeansIOS15Build = true
 
+// MARK: - 平台列表（本构建没有哔哩哔哩）
+
+extension SearchProvider {
+    /// 所有「可选平台」列表统一用这个，iOS 15 构建里剔除哔哩哔哩
+    static var beansCases: [SearchProvider] {
+        BeansIOS15Build ? allCases.filter { $0 != .bilibili } : allCases
+    }
+}
+
 // MARK: - iOS 15 兼容修饰器
 
 extension View {

@@ -127,7 +127,7 @@ struct SectionOrderSheet: View {
                             order = sections
                             if let platformOrder {
                                 PlatformPreferenceStore.shared.resetOrder()
-                                platformOrder.wrappedValue = SearchProvider.allCases.map(\.rawValue)
+                                platformOrder.wrappedValue = SearchProvider.beansCases.map(\.rawValue)
                             }
                         }
                     }

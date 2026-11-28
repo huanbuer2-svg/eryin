@@ -19,7 +19,7 @@ struct BeansApp: App {
         #if DEBUG
         if ProcessInfo.processInfo.arguments.contains("--beans-ui-smoke") {
             UserDefaults.standard.set(true, forKey: "beans.disclaimerAccepted")
-            UserDefaults.standard.set(SearchProvider.bilibili.rawValue, forKey: "beans.homeSource")
+            UserDefaults.standard.set(SearchProvider.netease.rawValue, forKey: "beans.homeSource")
         }
         #endif
         // 闪退检测：优先初始化，检测上次异常退出并安装崩溃捕获

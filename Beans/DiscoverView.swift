@@ -39,7 +39,7 @@ struct DiscoverView: View {
     /// 主页只保留每日推荐和排行榜；歌单广场位于独立底栏页面。
     private var availableSections: [String] { SectionOrderStore.homeDefaults }
     /// 首页数据源：记住上次选择，下次打开仍保持该平台（默认哔哩哔哩）
-    @AppStorage("beans.homeSource") private var homeSourceRaw = SearchProvider.bilibili.rawValue
+    @AppStorage("beans.homeSource") private var homeSourceRaw = SearchProvider.netease.rawValue
     /// 每日推荐的旧版横向歌曲卡样式，默认使用新版推荐卡片。
     @AppStorage("beans.home.dailySongsListStyle") private var dailySongsListStyle = false
     @AppStorage("beans.homeGreetingText") private var homeGreetingText = ""
@@ -85,7 +85,7 @@ struct DiscoverView: View {
     @AppStorage("beans.remoteAnnouncement.updatedAt") private var remoteAnnouncementUpdatedAt = ""
     @AppStorage("beans.remoteAnnouncement.homeBannerDismissedKey") private var remoteAnnouncementBannerDismissedKey = ""
     @AppStorage("beans.showSongVIPBadge") private var showSongVIPBadge = true
-    private var homeProviders: [SearchProvider] { platformPrefs.enabledSearchProviders.filter { $0 != .qishui } }
+    private var homeProviders: [SearchProvider] { platformPrefs.enabledSearchProviders.filter { $0 != .qishui && $0 != .bilibili } }
     /// 首页数据源：网易云 / QQ音乐（与搜索页同一控件样式）
     private var source: SearchProvider {
         guard let saved = SearchProvider(rawValue: homeSourceRaw), homeProviders.contains(saved) else {
@@ -125,7 +125,7 @@ struct DiscoverView: View {
 
     init() {
         let savedRaw = UserDefaults.standard.string(forKey: "beans.homeSource")
-            ?? SearchProvider.bilibili.rawValue
+            ?? SearchProvider.netease.rawValue
         let savedSource = SearchProvider(rawValue: savedRaw) ?? .bilibili
         let snapshot = DiscoverCache.shared.cached(for: savedSource)
         _topLists = State(initialValue: snapshot?.topLists ?? [])
