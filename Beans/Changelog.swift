@@ -40,8 +40,9 @@ enum ChangelogStore {
         UserDefaults.standard.synchronize()
     }
 
+    /// ❄️ 贰音：启动时不再弹「更新说明 / 旧版本不再维护」提示（仍可在 设置 → 更新日志 里查看）
     static var shouldShowWhatsNew: Bool {
-        lastSeenVersion != currentVersion
+        false
     }
 
     static var latest: VersionLog? { logs.first }

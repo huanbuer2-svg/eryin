@@ -439,11 +439,6 @@ struct ProfileView: View {
                     }
                     customAvatarCard
                     accountsSyncCard
-                    communityCard
-                    if !hideDonation {
-                        donationCard
-                    }
-                    easterEggCard
                     profileVersionFooter
                     if BeansDeveloperAccess.isAuthorized {
                         developerToolsCard
