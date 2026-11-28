@@ -293,11 +293,11 @@ final class BeansLXScriptBridge: NSObject, BeansLXScriptBridgeExports {
             guard let self else { return }
             self.runtimeQueue.async {
                 if let error {
-                    callback.call(withArguments: [[ "message": error.localizedDescription ], NSNull()])
+                    callback.call(withArguments: [[ "message": error.localizedDescription ], NSNull(), NSNull()])
                     return
                 }
                 guard let http = response as? HTTPURLResponse else {
-                    callback.call(withArguments: [[ "message": "No HTTP response" ], NSNull()])
+                    callback.call(withArguments: [[ "message": "No HTTP response" ], NSNull(), NSNull()])
                     return
                 }
                 let parsed = self.parseBody(data)
@@ -314,9 +314,9 @@ final class BeansLXScriptBridge: NSObject, BeansLXScriptBridgeExports {
                     "ok": (200..<300).contains(http.statusCode)
                 ]
                 if http.statusCode >= 400 {
-                    callback.call(withArguments: [[ "message": "HTTP \(http.statusCode)" ], responseObject])
+                    callback.call(withArguments: [[ "message": "HTTP \(http.statusCode)" ], responseObject, body])
                 } else {
-                    callback.call(withArguments: [NSNull(), responseObject])
+                    callback.call(withArguments: [NSNull(), responseObject, body])
                 }
             }
         }.resume()
@@ -453,6 +453,10 @@ final class BeansLXScriptRuntime {
 
         context.setObject(bridge, forKeyedSubscript: "lx" as NSString)
         context.setObject(timers, forKeyedSubscript: "__beansTimers" as NSString)
+        let scriptLog: @convention(block) (String) -> Void = { message in
+            BeansLogger.shared.log("第三方脚本：\(message)", level: .debug)
+        }
+        context.setObject(scriptLog, forKeyedSubscript: "__beansScriptLogNative" as NSString)
         var initialized = false
         queue.sync {
             context.evaluateScript("if (typeof globalThis === 'undefined') { var globalThis = this; }")
@@ -464,6 +468,9 @@ final class BeansLXScriptRuntime {
             context.evaluateScript("""
             (function() {
                 var nativeLX = globalThis.lx || lx;
+                globalThis.__beansScriptLog = function(message) {
+                    try { __beansScriptLogNative(String(message == null ? '' : message)); } catch (error) {}
+                };
                 var beansEnv = {
                     platform: nativeLX.env && nativeLX.env.platform ? nativeLX.env.platform : 'ios',
                     os: nativeLX.env && nativeLX.env.os ? nativeLX.env.os : 'iOS',
@@ -673,7 +680,7 @@ final class BeansLXScriptRuntime {
         }
     }
 
-    func invokeRequest(payload: [String: Any], timeout: TimeInterval = 12) -> Any? {
+    func invokeRequest(payload: [String: Any], timeout: TimeInterval = 20) -> Any? {
         let semaphore = DispatchSemaphore(value: 0)
         var result: Any?
         let resultLock = NSLock()
@@ -734,10 +741,11 @@ final class BeansLXScriptRuntime {
                         \(invocation)
                     ).then(
                         function(value) { __beansDone.resolve(value); },
-                        function(error) { __beansDone.reject(error && error.message ? error.message : String(error)); }
+                        function(error) { __beansDone.reject(error && error.message ? error.message : String(error)); __beansScriptLog("reject: " + (error && error.stack ? error.stack : String(error))); }
                     );
                 } catch (error) {
                     __beansDone.reject(error && error.message ? error.message : String(error));
+                    __beansScriptLog("throw: " + (error && error.stack ? error.stack : String(error)));
                 }
             })();
             """)

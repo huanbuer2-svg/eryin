@@ -660,8 +660,10 @@ final class QQMusicAPI {
         }
 
         guard let mapid = await likedPlaylistID(qqAuth: qqAuth, cookies: cookieCandidates), mapid > 0 else {
-            BeansLogger.shared.log("QQ 我的喜欢歌单解析失败：未找到真实歌单 ID", level: .error)
-            return []
+            // ❄️ 接口拿不到真实歌单 ID 时，用本机已同步的 QQ 收藏兜底，避免「我的喜欢」直接空白
+            let local = FavoritesStore.shared.qqFavoriteSongs
+            BeansLogger.shared.log("QQ 我的喜欢歌单解析失败：未找到真实歌单 ID，回退本地收藏 count=\(local.count)", level: local.isEmpty ? .error : .warn)
+            return local
         }
         for cookie in cookieCandidates {
             let songs: [Song]
