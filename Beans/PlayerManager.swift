@@ -998,6 +998,16 @@ final class PlayerManager: NSObject, ObservableObject {
                         quality: thirdPartyQuality,
                         strict: strictUnlock
                     )
+                    // ❄️ 跨平台兜底：QQ/酷狗等自家音源被上游收紧时，用歌名去别的平台搜同款再解析
+                    if resolvedThirdParty == nil, enableUnblock {
+                        if let hit = await CrossSourceFallback.resolve(
+                            song: song,
+                            quality: thirdPartyQuality,
+                            strict: strictUnlock
+                        ) {
+                            resolvedThirdParty = hit.0
+                        }
+                    }
                 }
                 if urlString != nil || resolvedThirdParty != nil { break }
             }

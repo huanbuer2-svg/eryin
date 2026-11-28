@@ -298,7 +298,10 @@ final class BeansLXScriptBridge: NSObject, BeansLXScriptBridgeExports {
                 if let error {
                     BeansLogger.shared.log("第三方脚本请求失败 host=\(hostLabel) elapsed=\(elapsed) error=\(error.localizedDescription)", level: .debug)
                 } else if let http = response as? HTTPURLResponse {
-                    BeansLogger.shared.log("第三方脚本请求 host=\(hostLabel) status=\(http.statusCode) bytes=\(data?.count ?? 0) elapsed=\(elapsed)", level: .debug)
+                    let peek = http.statusCode >= 400
+                        ? (String(data: (data ?? Data()).prefix(160), encoding: .utf8) ?? "")
+                        : ""
+                    BeansLogger.shared.log("第三方脚本请求 host=\(hostLabel) status=\(http.statusCode) bytes=\(data?.count ?? 0) elapsed=\(elapsed)\(peek.isEmpty ? "" : " body=\(peek)")", level: .debug)
                 }
                 if let error {
                     callback.call(withArguments: [[ "message": error.localizedDescription ], NSNull(), NSNull()])
