@@ -43,7 +43,7 @@ targets:
         STRIP_INSTALLED_PRODUCT: YES
         SWIFT_COMPILATION_MODE: wholemodule
         SWIFT_OPTIMIZATION_LEVEL: "-O"
-        MARKETING_VERSION: "2.4.4"
+        MARKETING_VERSION: "2.4.5"
         CURRENT_PROJECT_VERSION: "102"
         TARGETED_DEVICE_FAMILY: "1,2"
         SWIFT_OBJC_BRIDGING_HEADER: Beans/Beans-Bridging-Header.h

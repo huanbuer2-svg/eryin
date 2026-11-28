@@ -236,8 +236,8 @@ final class BeansLXScriptBridge: NSObject, BeansLXScriptBridgeExports {
             "rawScript": script
         ]
         let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 8
-        config.timeoutIntervalForResource = 12
+        config.timeoutIntervalForRequest = 20
+        config.timeoutIntervalForResource = 30
         config.requestCachePolicy = .reloadIgnoringLocalCacheData
         session = URLSession(configuration: config)
     }
@@ -247,7 +247,7 @@ final class BeansLXScriptBridge: NSObject, BeansLXScriptBridgeExports {
         let requestOptions = dictionary(from: options?.toObject())
         guard let requestURL = URL(string: url) else {
             runtimeQueue.async {
-                callback.call(withArguments: [[ "message": "Invalid URL" ], NSNull()])
+                callback.call(withArguments: [[ "message": "Invalid URL" ], NSNull(), NSNull()])
             }
             return
         }
@@ -289,9 +289,17 @@ final class BeansLXScriptBridge: NSObject, BeansLXScriptBridgeExports {
             }
         }
 
+        let startedAt = Date()
+        let hostLabel = requestURL.host ?? requestURL.absoluteString
         session.dataTask(with: request) { [weak self] data, response, error in
             guard let self else { return }
+            let elapsed = String(format: "%.0fms", Date().timeIntervalSince(startedAt) * 1000)
             self.runtimeQueue.async {
+                if let error {
+                    BeansLogger.shared.log("第三方脚本请求失败 host=\(hostLabel) elapsed=\(elapsed) error=\(error.localizedDescription)", level: .debug)
+                } else if let http = response as? HTTPURLResponse {
+                    BeansLogger.shared.log("第三方脚本请求 host=\(hostLabel) status=\(http.statusCode) bytes=\(data?.count ?? 0) elapsed=\(elapsed)", level: .debug)
+                }
                 if let error {
                     callback.call(withArguments: [[ "message": error.localizedDescription ], NSNull(), NSNull()])
                     return
@@ -318,6 +326,8 @@ final class BeansLXScriptBridge: NSObject, BeansLXScriptBridgeExports {
                 } else {
                     callback.call(withArguments: [NSNull(), responseObject, body])
                 }
+                // JSContext 的 Promise 链是微任务，原生回调结束后主动排空一次，避免脚本一直等不到 then
+                self.runtime?.drainMicrotasks()
             }
         }.resume()
     }
@@ -470,6 +480,22 @@ final class BeansLXScriptRuntime {
                 var nativeLX = globalThis.lx || lx;
                 globalThis.__beansScriptLog = function(message) {
                     try { __beansScriptLogNative(String(message == null ? '' : message)); } catch (error) {}
+                };
+                globalThis.__beansDescribeError = function(error) {
+                    if (error == null) return String(error);
+                    if (typeof error === 'string') return error;
+                    var parts = [];
+                    if (error.name) parts.push('name=' + error.name);
+                    if (error.message) parts.push('message=' + error.message);
+                    if (error.code != null) parts.push('code=' + error.code);
+                    if (error.status != null) parts.push('status=' + error.status);
+                    if (error.msg) parts.push('msg=' + error.msg);
+                    try {
+                        var json = JSON.stringify(error);
+                        if (json && json !== '{}') parts.push('json=' + json.slice(0, 400));
+                    } catch (e) {}
+                    if (error.stack) parts.push('stack=' + String(error.stack).slice(0, 500));
+                    return parts.join(' | ') || String(error);
                 };
                 var beansEnv = {
                     platform: nativeLX.env && nativeLX.env.platform ? nativeLX.env.platform : 'ios',
@@ -674,6 +700,11 @@ final class BeansLXScriptRuntime {
         return []
     }
 
+    /// 主动排空 JavaScriptCore 的微任务队列（Promise.then）
+    func drainMicrotasks() {
+        _ = context.evaluateScript("0")
+    }
+
     func capabilitySnapshot() -> CapabilitySnapshot {
         queue.sync {
             CapabilitySnapshot(platforms: capabilities, qualities: qualityCapabilities)
@@ -741,11 +772,11 @@ final class BeansLXScriptRuntime {
                         \(invocation)
                     ).then(
                         function(value) { __beansDone.resolve(value); },
-                        function(error) { __beansDone.reject(error && error.message ? error.message : String(error)); __beansScriptLog("reject: " + (error && error.stack ? error.stack : String(error))); }
+                        function(error) { __beansDone.reject(error && error.message ? error.message : String(error)); __beansScriptLog("reject: " + __beansDescribeError(error)); }
                     );
                 } catch (error) {
                     __beansDone.reject(error && error.message ? error.message : String(error));
-                    __beansScriptLog("throw: " + (error && error.stack ? error.stack : String(error)));
+                    __beansScriptLog("throw: " + __beansDescribeError(error));
                 }
             })();
             """)
