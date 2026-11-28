@@ -1574,6 +1574,7 @@ struct AccountHubSheet: View {
     @EnvironmentObject private var auth: AuthStore
     @ObservedObject private var qqAuth = QQMusicAuth.shared
     @ObservedObject private var kugouAuth = KugouMusicAuth.shared
+    @ObservedObject private var kuwoAuth = KuwoMusicAuth.shared
     @ObservedObject private var bilibiliAuth = BilibiliAuth.shared
     @ObservedObject private var platformPrefs = PlatformPreferenceStore.shared
     @AppStorage("beans.language") private var languageRaw = AppLanguage.chinese.rawValue
@@ -1583,6 +1584,8 @@ struct AccountHubSheet: View {
     @State private var showQQLogin = false
     @State private var showKugouLogin = false
     @State private var showBilibiliLogin = false
+    @State private var showKuwoLogin = false
+    @State private var confirmKuwoLogout = false
     @State private var confirmNeteaseLogout = false
     @State private var confirmQQLogout = false
     @State private var confirmKugouLogout = false
@@ -1612,6 +1615,7 @@ struct AccountHubSheet: View {
                         if platformPrefs.isEnabled(SearchProvider.netease) { neteaseCard }
                         if platformPrefs.isEnabled(SearchProvider.qq) { qqCard }
                         if platformPrefs.isEnabled(SearchProvider.kugou) { kugouCard }
+                        kuwoCard
                         if platformPrefs.isEnabled(SearchProvider.bilibili) {
                             bilibiliCard
                         }
@@ -1643,6 +1647,16 @@ struct AccountHubSheet: View {
         }
         .sheet(isPresented: $showBilibiliLogin) {
             BilibiliLoginSheet().environmentObject(theme)
+        }
+        .sheet(isPresented: $showKuwoLogin) {
+            KuwoLoginSheet().environmentObject(theme)
+        }
+        .confirmationDialog("退出酷我音乐？", isPresented: $confirmKuwoLogout, titleVisibility: .visible) {
+            Button("退出登录", role: .destructive) {
+                KuwoMusicAuth.shared.logout()
+                ToastCenter.shared.show("已退出酷我音乐")
+            }
+            Button("取消", role: .cancel) {}
         }
         .confirmationDialog("退出网易云登录？", isPresented: $confirmNeteaseLogout, titleVisibility: .visible) {
             Button("退出登录", role: .destructive) {
@@ -1824,6 +1838,42 @@ struct AccountHubSheet: View {
                 Text(kugouAuth.isLoggedIn ? "退出" : "登录")
                     .font(BeansFont.appFont(13, .medium))
                     .foregroundStyle(kugouAuth.isLoggedIn ? Color.red : Color.beansAmber)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 6)
+                    .background { BeansSurface(shape: Capsule()) }
+            }
+            .padding(14)
+            .background {
+                BeansGlass(shape: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(GlassPressButtonStyle(scale: 0.97))
+    }
+
+    private var kuwoCard: some View {
+        Button {
+            BeansHaptics.tap()
+            if kuwoAuth.isLoggedIn { confirmKuwoLogout = true } else { showKuwoLogin = true }
+        } label: {
+            HStack(spacing: 14) {
+                KuwoBrandIcon(size: 48)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("酷我音乐")
+                        .font(BeansFont.appFont(15, .semibold))
+                        .foregroundStyle(Color.beansLabel)
+                    Text(kuwoAuth.isLoggedIn
+                         ? (kuwoAuth.nickname.isEmpty ? "已登录" : kuwoAuth.nickname)
+                         : "未登录 · Cookie 登录后同步歌单")
+                        .font(BeansFont.appFont(12))
+                        .foregroundStyle(Color.beansComment)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.8)
+                }
+                Spacer()
+                Text(kuwoAuth.isLoggedIn ? "退出" : "登录")
+                    .font(BeansFont.appFont(13, .medium))
+                    .foregroundStyle(kuwoAuth.isLoggedIn ? Color.red : Color.beansAmber)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 6)
                     .background { BeansSurface(shape: Capsule()) }

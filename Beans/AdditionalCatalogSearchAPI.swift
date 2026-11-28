@@ -211,6 +211,8 @@ enum AdditionalCatalogSearchAPI {
     }
 
     static func playlistSongs(source: SongSource, id: Int) async throws -> [Song] {
+        // ❄️ 防御：脏数据里的歌单 id 可能为 0/负数，直接返回空而不是拼出异常请求
+        guard id > 0 else { return [] }
         switch source {
         case .kuwo:
             var components = URLComponents(string: "https://nplserver.kuwo.cn/pl.svc")!
