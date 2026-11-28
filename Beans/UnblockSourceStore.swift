@@ -107,7 +107,16 @@ struct ThirdPartySource: Identifiable, Codable, Hashable, Sendable {
 /// 第三方音源管理：只保存用户导入的音源配置。
 final class UnblockSourceStore: ObservableObject {
     static let shared = UnblockSourceStore()
-    private static let bundledIkunSourceID = "beans.bundled.ikun-music-source.v26"
+    /// 随包内置的 LX 音源（按顺序尝试：星海 → 聆澜赞助版 → ikun）
+    private struct BundledSource {
+        let id: String
+        let resource: String
+    }
+    private static let bundledSources: [BundledSource] = [
+        BundledSource(id: "beans.bundled.xinghai-music-source.v3222", resource: "xinghai-music-source"),
+        BundledSource(id: "beans.bundled.linlan-music-source.v901", resource: "linlan-music-source"),
+        BundledSource(id: "beans.bundled.ikun-music-source.v26", resource: "ikun-music-source"),
+    ]
     private static let removedBuiltInSourceIDs: Set<String> = [
         "beans.preset.shiqianjiang.lx.v7",
         "beans.preset.shiqianjiang.cr.v7",
@@ -146,16 +155,20 @@ final class UnblockSourceStore: ObservableObject {
         // 保留用户导入源，并把项目随附的 LX 音源导入一次。脚本仍由现有
         // JavaScriptCore 运行时执行，播放链路不需要另起一套网络实现。
         var mergedSources = savedSources
-        if !mergedSources.contains(where: { $0.id == Self.bundledIkunSourceID }),
-           let bundledURL = Bundle.main.url(forResource: "ikun-music-source", withExtension: "js"),
-           let imported = try? ThirdPartySourceImportParser.parse(fileURL: bundledURL),
-           let first = imported.first {
+        var bundledNew: [ThirdPartySource] = []
+        for bundled in Self.bundledSources {
+            guard !mergedSources.contains(where: { $0.id == bundled.id }),
+                  let bundledURL = Bundle.main.url(forResource: bundled.resource, withExtension: "js"),
+                  let imported = try? ThirdPartySourceImportParser.parse(fileURL: bundledURL),
+                  let first = imported.first else { continue }
             var source = first
-            source.id = Self.bundledIkunSourceID
+            source.id = bundled.id
             source.enabled = true
-            source.sourceURL = "bundle://ikun-music-source.js"
-            mergedSources.append(source)
+            source.sourceURL = "bundle://\(bundled.resource).js"
+            bundledNew.append(source)
         }
+        // 内置源放在最前面，解析时优先尝试
+        mergedSources = bundledNew + mergedSources
 
         // 旧版本的内置预设全部丢弃，只保留用户导入的配置。
         var seen = Set<String>()
