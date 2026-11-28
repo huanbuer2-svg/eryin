@@ -605,7 +605,7 @@ enum UnblockService {
             let trimmed = quality.rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
             return trimmed.isEmpty || !seen.insert(trimmed).inserted ? nil : trimmed
         }
-        if !result.isEmpty { return result }
+        if !result.isEmpty { return Array(result.prefix(2)) }
 
         // 若源只声明了非标准档位，至少尝试它声明过的档位，不能越过能力表强行请求未知音质。
         if !supported.isEmpty {

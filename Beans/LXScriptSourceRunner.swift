@@ -236,8 +236,8 @@ final class BeansLXScriptBridge: NSObject, BeansLXScriptBridgeExports {
             "rawScript": script
         ]
         let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 20
-        config.timeoutIntervalForResource = 30
+        config.timeoutIntervalForRequest = 10
+        config.timeoutIntervalForResource = 15
         config.requestCachePolicy = .reloadIgnoringLocalCacheData
         session = URLSession(configuration: config)
     }
@@ -714,7 +714,7 @@ final class BeansLXScriptRuntime {
         }
     }
 
-    func invokeRequest(payload: [String: Any], timeout: TimeInterval = 20) -> Any? {
+    func invokeRequest(payload: [String: Any], timeout: TimeInterval = 8) -> Any? {
         let semaphore = DispatchSemaphore(value: 0)
         var result: Any?
         let resultLock = NSLock()

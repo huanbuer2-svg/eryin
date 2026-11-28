@@ -923,7 +923,8 @@ final class PlayerManager: NSObject, ObservableObject {
             let strictUnlock = shouldLockOfficialOnly(song)
             let quality = (forceKugouStandard && song.source == .kugou) ? .standard : NetworkAudioQuality.officialPreferred
             let thirdPartyQuality = NetworkAudioQuality.thirdPartyPreferred
-            for attempt in 0..<3 {
+            let resolveStartedAt = Date()
+            for attempt in 0..<2 {
                 if attempt > 0 {
                     try? await Task.sleep(nanoseconds: 800_000_000)
                     if Task.isCancelled { return }
@@ -1012,6 +1013,7 @@ final class PlayerManager: NSObject, ObservableObject {
                 if urlString != nil || resolvedThirdParty != nil { break }
             }
             if let resolved = resolvedThirdParty {
+                BeansLogger.shared.log("播放解析：第三方命中 song=\(song.name) source=\(song.source.rawValue) via=\(resolved.sourceTitle) quality=\(resolved.quality.rawValue) elapsed=\(String(format: "%.0fms", Date().timeIntervalSince(resolveStartedAt) * 1000))", level: .info)
                 let notice = self.thirdPartyVIPNotice(for: song, sourceTitle: resolved.sourceTitle)
                 await MainActor.run {
                     guard generation == self.loadGeneration else { return }
@@ -1026,6 +1028,9 @@ final class PlayerManager: NSObject, ObservableObject {
                     self.prefetchNextThirdPartyIfNeeded(currentWasThirdParty: true)
                 }
                 return
+            }
+            if urlString == nil {
+                BeansLogger.shared.log("播放解析：全部失败 song=\(song.name) source=\(song.source.rawValue) elapsed=\(String(format: "%.0fms", Date().timeIntervalSince(resolveStartedAt) * 1000))", level: .error)
             }
             guard let urlString, let url = URL(string: urlString) else {
                 await MainActor.run {

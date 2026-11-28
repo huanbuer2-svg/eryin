@@ -113,11 +113,12 @@ final class UnblockSourceStore: ObservableObject {
         let resource: String
     }
     private static let bundledSources: [BundledSource] = [
-        BundledSource(id: "beans.bundled.xinghai-music-source.v3222", resource: "xinghai-music-source"),
-        BundledSource(id: "beans.bundled.linlan-music-source.v901", resource: "linlan-music-source"),
-        BundledSource(id: "beans.bundled.ikun-music-source.v26", resource: "ikun-music-source"),
+        BundledSource(id: "beans.bundled.linlan-music-source.v901b", resource: "linlan-music-source"),
     ]
     private static let removedBuiltInSourceIDs: Set<String> = [
+        "beans.bundled.xinghai-music-source.v3222",
+        "beans.bundled.ikun-music-source.v26",
+        "beans.bundled.linlan-music-source.v901",
         "beans.preset.shiqianjiang.lx.v7",
         "beans.preset.shiqianjiang.cr.v7",
         "beans.preset.shiqianjiang.qt.v7",
