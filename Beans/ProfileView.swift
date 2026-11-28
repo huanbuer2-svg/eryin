@@ -138,6 +138,7 @@ struct ProfileView: View {
 
     /// 统一账号登录面板（网易云 + QQ 音乐整合）
     @State private var showAccountHub = false
+    @State private var showKuwoLogin = false
     /// 设置页（外观 + 歌词翻译等）
     @State private var showSettings = false
     /// 只在开发者设备的“我的”页面底部显示。
@@ -175,6 +176,7 @@ struct ProfileView: View {
     @ObservedObject private var profileNameBackgroundStore = BeansProfileNameBackgroundStore.shared
     @ObservedObject private var qqAuth = QQMusicAuth.shared
     @ObservedObject private var kugouAuth = KugouMusicAuth.shared
+    @ObservedObject private var kuwoAuth = KuwoMusicAuth.shared
     @ObservedObject private var platformPrefs = PlatformPreferenceStore.shared
     @AppStorage("beans.language") private var languageRaw = AppLanguage.chinese.rawValue
     @AppStorage("beans.globalFloatingEffect") private var globalFloatingEffectRaw = BeansGlobalFloatingEffect.off.rawValue
@@ -436,6 +438,7 @@ struct ProfileView: View {
                         header
                     }
                     customAvatarCard
+                    accountsSyncCard
                     communityCard
                     if !hideDonation {
                         donationCard
@@ -488,6 +491,10 @@ struct ProfileView: View {
         // The avatar-presented profile is its own sheet, so its content must
         // receive the selected color scheme instead of only the backdrop.
         .preferredColorScheme(themeMode.colorScheme)
+        .sheet(isPresented: $showKuwoLogin) {
+            KuwoLoginSheet()
+                .environmentObject(theme)
+        }
         .alert("无法打开微信", isPresented: $showWeChatOpenError) {
             Button("知道了", role: .cancel) {}
         } message: {
@@ -1083,6 +1090,113 @@ struct ProfileView: View {
     }
 
     /// 我的页底部交流群入口
+    // MARK: - 账号音源与同步（仿 Soniceve 我的页分组）
+
+    private var accountsSyncCard: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("账号音源与同步")
+                .font(BeansFont.appFont(15, .semibold))
+                .foregroundStyle(Color.beansLabel)
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
+                .padding(.bottom, 10)
+
+            accountRow(
+                icon: AnyView(Image("BrandNetease").resizable().scaledToFit()),
+                title: "网易云音乐",
+                subtitle: auth.isLoggedIn ? (auth.user?.nickname ?? "已登录") : "未登录 · 同步歌单与播放记录"
+            ) { showAccountHub = true }
+            rowDivider
+            accountRow(
+                icon: AnyView(Image("BrandQQ").resizable().scaledToFit()),
+                title: "QQ 音乐",
+                subtitle: qqAuth.isLoggedIn ? (qqAuth.nickname.isEmpty ? "已登录" : qqAuth.nickname) : "未登录 · 同步账号资料"
+            ) { showAccountHub = true }
+            rowDivider
+            accountRow(
+                icon: AnyView(Image("BrandKugou").resizable().scaledToFit()),
+                title: "酷狗音乐",
+                subtitle: kugouAuth.isLoggedIn ? (kugouAuth.nickname.isEmpty ? "已登录" : kugouAuth.nickname) : "未登录 · 同步账号资料"
+            ) { showAccountHub = true }
+            rowDivider
+            accountRow(
+                icon: AnyView(KuwoBrandIcon(size: 34)),
+                title: "酷我音乐",
+                subtitle: kuwoAuth.isLoggedIn ? (kuwoAuth.nickname.isEmpty ? "已登录" : kuwoAuth.nickname) : "未登录 · Cookie 登录后同步歌单"
+            ) {
+                if kuwoAuth.isLoggedIn { showAccountHub = true } else { showKuwoLogin = true }
+            }
+            rowDivider
+            accountRow(
+                icon: AnyView(
+                    RoundedRectangle(cornerRadius: 9, style: .continuous)
+                        .fill(Color.beansAmber.opacity(0.16))
+                        .overlay {
+                            Image(systemName: "slider.horizontal.3")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(Color.beansAmber)
+                        }
+                ),
+                title: "平台显示",
+                subtitle: platformPrefs.summaryText
+            ) { showAccountHub = true }
+
+            Text("点已登录的平台可退出登录或同步歌单；「平台显示」决定首页与歌单页可切换哪些平台。")
+                .font(BeansFont.appFont(11))
+                .foregroundStyle(Color.beansComment)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 16)
+                .padding(.top, 10)
+                .padding(.bottom, 14)
+        }
+        .background {
+            BeansGlass(shape: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        }
+        .beansCardShadow(radius: 8, y: 3)
+    }
+
+    private func accountRow(
+        icon: AnyView,
+        title: String,
+        subtitle: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button {
+            BeansHaptics.tap()
+            action()
+        } label: {
+            HStack(spacing: 12) {
+                icon
+                    .frame(width: 34, height: 34)
+                    .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(BeansFont.appFont(14, .medium))
+                        .foregroundStyle(Color.beansLabel)
+                    Text(subtitle)
+                        .font(BeansFont.appFont(11))
+                        .foregroundStyle(Color.beansComment)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
+                }
+                Spacer(minLength: 8)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(Color.beansComment.opacity(0.5))
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 11)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var rowDivider: some View {
+        Divider()
+            .overlay(Color.beansComment.opacity(0.12))
+            .padding(.leading, 62)
+    }
+
     private var communityCard: some View {
         Button {
             BeansHaptics.tap()
