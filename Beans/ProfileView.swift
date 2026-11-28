@@ -490,6 +490,11 @@ struct ProfileView: View {
             KuwoLoginSheet()
                 .environmentObject(theme)
         }
+        .sheet(isPresented: $showAccountHub) {
+            AccountHubSheet()
+                .environmentObject(auth)
+                .environmentObject(theme)
+        }
         .alert("无法打开微信", isPresented: $showWeChatOpenError) {
             Button("知道了", role: .cancel) {}
         } message: {
